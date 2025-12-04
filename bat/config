@@ -1,0 +1,5 @@
+--theme=auto
+
+# set the theme to "TwoDark"
+--theme-dark="base16"
+--theme-light="base16"
