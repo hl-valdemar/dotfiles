@@ -27,6 +27,7 @@ vim.pack.add({
   -- color schemes
   { src = "https://github.com/vague2k/vague.nvim" },
   { src = "https://github.com/sainnhe/gruvbox-material" },
+  { src = "https://github.com/sainnhe/everforest" },
   { src = "https://github.com/morhetz/gruvbox" },
   { src = "https://github.com/xero/miasma.nvim" },
   { src = "https://github.com/rose-pine/neovim" },
@@ -201,6 +202,7 @@ require("nvim-treesitter.configs").setup({
   ensure_installed = {
     "lua",
     "zig",
+    "go",
     "rust",
     "asm",
     "svelte",
@@ -232,13 +234,20 @@ vim.api.nvim_create_autocmd("LspAttach", {
   desc = "LSP: Disable hover capability from Ruff",
 })
 
+-- Hook blink.cmp into the native LSP system
+vim.lsp.config("*", {
+  capabilities = require('blink.cmp').get_lsp_capabilities()
+})
+
 vim.lsp.enable({
   "lua_ls",
   "zls",
   "ols",
+  "gopls",
   "clangd",
   "rust_analyzer",
   "svelte",
+  "ts_ls",
   "tinymist",
   "ruff",
   "pyright",
@@ -266,6 +275,62 @@ vim.lsp.config("ols", {
     },
   },
 })
+
+vim.lsp.config("ts_ls", {
+  filetypes = { "javascript", "typescript", "javascriptreact", "typescriptreact", "svelte" },
+  init_options = {
+    plugins = {
+      {
+        name = "@sveltejs/language-server",
+        -- This allows the TS server to recognize Svelte files
+        location = vim.fn.expand("$HOME/.bun/install/global/node_modules/svelte-language-server"),
+      },
+    },
+  },
+})
+
+-- HELPER FUNCTIONS
+
+local colors_dark = "miasma"
+local colors_light = "everforest"
+
+local function load_color_mode(mode)
+  local scheme = nil
+
+  if mode == "dark" then
+    vim.o.background = "dark"
+    scheme = colors_dark
+  else
+    vim.o.background = "light"
+    scheme = colors_light
+  end
+
+  -- Theme specific settings
+  if scheme == "everforest" then
+    vim.g.everforest_background = "soft"
+  end
+
+  -- Load the colorscheme
+  vim.cmd("colorscheme " .. scheme)
+
+  -- Common overrides
+  vim.cmd("highlight StatusLine guibg=none")
+
+  -- Lualine theme selection
+  local lualine_theme = 'auto'
+  if scheme == 'everforest' then
+    lualine_theme = 'everforest'
+  end
+
+  require('lualine').setup({
+    options = {
+      theme = lualine_theme
+    }
+  })
+
+  -- Common visual fixes
+  vim.api.nvim_set_hl(0, "MiniPickMatchCurrent", { bg = "#2f2f2f", bold = true })
+end
 
 -- KEYBINDINGS
 
@@ -362,21 +427,10 @@ end, { expr = true, desc = "Open github repo if in repo workdir" })
 -- toggle background
 vim.keymap.set('n', '<leader>tt', function()
   if vim.o.background == 'dark' then
-    vim.o.background = 'light'
+    load_color_mode("light")
   else
-    vim.o.background = 'dark'
+    load_color_mode("dark")
   end
-
-  if vim.o.background == "dark" then
-    vim.cmd("colorscheme miasma")
-    vim.cmd(":hi statusline guibg=none")
-  else
-    vim.cmd("colorscheme rose-pine-dawn")
-    vim.cmd(":hi statusline guibg=none")
-  end
-
-  -- fix mini.pick selection visibility
-  vim.api.nvim_set_hl(0, "MiniPickMatchCurrent", { bg = "#2f2f2f", bold = true })
 end, { desc = 'Toggle background (light/dark)' })
 
 -- COLORS
@@ -389,32 +443,14 @@ local function set_background_from_system()
     handle:close()
 
     if result:match('Dark') then
-      vim.o.background = 'dark'
+      load_color_mode("dark")
     else
-      vim.o.background = 'light'
+      load_color_mode("light")
     end
   else
-    vim.o.background = 'light'
+    -- Default to light if detection fails or system is light
+    load_color_mode("light")
   end
-
-  if vim.o.background == "dark" then
-    vim.cmd("colorscheme miasma")
-    vim.cmd(":hi statusline guibg=none")
-  else
-    vim.cmd("colorscheme rose-pine-dawn")
-    vim.cmd(":hi statusline guibg=none")
-  end
-
-  -- background transparency
-  vim.cmd([[
-    highlight Normal guibg=none
-    highlight NonText guibg=none
-    highlight Normal ctermbg=none
-    highlight NonText ctermbg=none
-  ]])
-
-  -- fix mini.pick selection visibility
-  vim.api.nvim_set_hl(0, "MiniPickMatchCurrent", { bg = "#2f2f2f", bold = true })
 end
 
 -- set correct background on startup

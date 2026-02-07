@@ -39,3 +39,4 @@ fzf-file-widget() {
 
 zle -N fzf-file-widget
 bindkey '^F' fzf-file-widget
+export PATH="$HOME/.bun/bin:$PATH"
