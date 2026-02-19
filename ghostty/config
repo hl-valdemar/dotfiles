@@ -8,10 +8,11 @@ cursor-style = block
 
 # better unicode block rendering (in my opinion)
 font-codepoint-map = U+2591-U+2593 = Hack Nerd Font
+font-codepoint-map = U+2800-U+28FF = Hack Nerd Font
 
 # theme
 # theme = dark:Miasma,light:Rose Pine Dawn
-theme = dark:Miasma,light:Everforest Light Med
+theme = dark:Miasma,light:Everforest Light Soft
 background-opacity = 0.95
 background-blur = true
 
@@ -34,4 +35,3 @@ keybind = command+shift+j=resize_split:down,20
 # start in home, but inherit from working dir
 working-directory = home
 window-inherit-working-directory = true
-
