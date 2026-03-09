@@ -19,7 +19,7 @@ alias lg="lazygit"
 NEWLINE=$'\n'
 export PS1="${NEWLINE}λ "
 
-source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source $(brew --prefix)/share/zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
 
 # init plugins (before completion)
 eval "$(atuin init zsh)"
@@ -39,4 +39,7 @@ fzf-file-widget() {
 
 zle -N fzf-file-widget
 bindkey '^F' fzf-file-widget
-export PATH="$HOME/.bun/bin:$PATH"
+
+export NVM_DIR=/Users/valdemar.lorenzen/.nvm
+[ -s /opt/homebrew/opt/nvm/nvm.sh ] && \. /opt/homebrew/opt/nvm/nvm.sh  # This loads nvm
+[ -s /opt/homebrew/opt/nvm/etc/bash_completion.d/nvm ] && \. /opt/homebrew/opt/nvm/etc/bash_completion.d/nvm  # This loads nvm bash_completion
