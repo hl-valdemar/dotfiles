@@ -37,5 +37,8 @@ export RUSTUP_HOME="$HOME/.local/share/rustup"
 export CARGO_HOME="$HOME/.local/share/cargo"
 export PATH="$HOME/.local/share/cargo/bin:$PATH"
 
+# follow linux-style path if possible
+export XDG_CONFIG_HOME="$HOME/.config"
+
 # export vimrc location
 export MYVIMRC="$HOME/.config/nvim/init.lua"

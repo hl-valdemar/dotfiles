@@ -1,0 +1,57 @@
+[user]
+  name = Valdemar Lorenzen
+  email = valdemar.lorenzen+jepp@jepp.com
+
+[pull]
+  rebase = false
+
+[filter "lfs"]
+  clean = git-lfs clean -- %f
+  smudge = git-lfs smudge -- %f
+  process = git-lfs filter-process
+  required = true
+
+[core]
+  pager = delta
+
+[delta]
+  navigate = true    # use n and N to move between diff sections
+  line-numbers = true
+  # make headers less uggly
+  # hunk-header-style = raw
+  hunk-header-decoration-style = none
+  file-decoration-style = none
+  line-numbers-left-format = "| {nm:>4} "
+  line-numbers-right-format = "| {np:>4} "
+
+[delta "dark-mode"]
+  light = false
+  # Removed lines (Muted, dark red)
+  minus-style = syntax "#402A2A"
+  minus-emph-style = syntax "#5A3A3A"
+  # Added lines (Muted, dark green)
+  plus-style = syntax "#2A3A2A"
+  plus-emph-style = syntax "#3A5A3A"
+  # Line numbers
+  line-numbers-minus-style = "#5A3A3A"
+  line-numbers-plus-style = "#3A5A3A"
+  line-numbers-zero-style = "#685742"
+  # Splitters
+  line-numbers-left-style = "#685742"
+  line-numbers-right-style = "#685742"
+
+[delta "light-mode"]
+  light = true
+  # Removed lines (Soft pastel red)
+  minus-style = syntax "#F4D6D2"
+  minus-emph-style = syntax "#ECA4A0"
+  # Added lines (Soft pastel green)
+  plus-style = syntax "#DCE4C1"
+  plus-emph-style = syntax "#C2D288"
+  # Line numbers
+  line-numbers-minus-style = "#ECA4A0"
+  line-numbers-plus-style = "#8DA102"
+  line-numbers-zero-style = "#E0A000"
+  # Splitters
+  line-numbers-left-style = "#E0A000"
+  line-numbers-right-style = "#E0A000"

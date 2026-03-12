@@ -1,0 +1,18 @@
+git:
+  pagers:
+    - colorArg: always
+      pager: >-
+        bash -c '
+        if [[ "$(defaults read -g AppleInterfaceStyle 2>/dev/null)" == "Dark" ]]; then
+          export BAT_THEME="Miasma"; export DELTA_FEATURES="dark-mode";
+        else
+          export BAT_THEME="EverforestLightSoft"; export DELTA_FEATURES="light-mode";
+        fi;
+        SPLIT=""; [ -f /tmp/lg-split ] && SPLIT="--side-by-side";
+        exec delta $SPLIT --paging=never --line-numbers
+        '
+customCommands:
+  - key: '|'
+    context: 'global'
+    description: 'Toggle Delta side-by-side view'
+    command: 'if [ -f /tmp/lg-split ]; then rm /tmp/lg-split; else touch /tmp/lg-split; fi'

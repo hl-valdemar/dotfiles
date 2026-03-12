@@ -19,7 +19,7 @@ alias lg="lazygit"
 NEWLINE=$'\n'
 export PS1="${NEWLINE}λ "
 
-source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source $(brew --prefix)/share/zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
 
 # init plugins (before completion)
 eval "$(atuin init zsh)"
