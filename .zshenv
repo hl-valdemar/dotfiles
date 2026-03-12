@@ -26,6 +26,12 @@ export PATH="$HOME/.volta/bin:$PATH"
 # pipx installation
 export PATH="$HOME/.local/bin:$PATH"
 
+# add go installations to path
+export PATH="$PATH:$(go env GOPATH)/bin"
+
+# add bun
+export PATH="$HOME/.bun/bin:$PATH"
+
 # rust installation
 export RUSTUP_HOME="$HOME/.local/share/rustup"
 export CARGO_HOME="$HOME/.local/share/cargo"
@@ -33,4 +39,3 @@ export PATH="$HOME/.local/share/cargo/bin:$PATH"
 
 # export vimrc location
 export MYVIMRC="$HOME/.config/nvim/init.lua"
-

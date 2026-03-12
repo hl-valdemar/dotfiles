@@ -3,8 +3,8 @@
 vim.opt.winborder = "double"
 vim.opt.cursorcolumn = false
 vim.opt.ignorecase = true
-vim.opt.tabstop = 2
-vim.opt.shiftwidth = 2
+vim.opt.tabstop = 4
+vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
 vim.opt.smartindent = true
 vim.opt.wrap = false
@@ -25,11 +25,9 @@ vim.opt.listchars = {
 
 vim.pack.add({
   -- color schemes
-  { src = "https://github.com/vague2k/vague.nvim" },
+  { src = "https://github.com/xero/miasma.nvim" },
   { src = "https://github.com/sainnhe/gruvbox-material" },
   { src = "https://github.com/sainnhe/everforest" },
-  { src = "https://github.com/morhetz/gruvbox" },
-  { src = "https://github.com/xero/miasma.nvim" },
   { src = "https://github.com/rose-pine/neovim" },
   -- utility
   { src = "https://github.com/stevearc/oil.nvim" },
@@ -215,6 +213,20 @@ require("nvim-treesitter.configs").setup({
   modules = {},
 })
 
+-- Honey language support
+vim.filetype.add({ extension = { hon = "honey" } })
+
+local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
+parser_config.honey = {
+  install_info = {
+    url = vim.fn.expand("~/Developer/Personal/Languages/tree-sitter-honey"),
+    files = { "src/parser.c" },
+    generate_requires_npm = false,
+    requires_generate_from_grammar = false,
+  },
+  filetype = "honey",
+}
+
 -- LSP
 
 vim.diagnostic.config({ virtual_lines = true })
@@ -313,7 +325,11 @@ local function load_color_mode(mode)
   -- Load the colorscheme
   vim.cmd("colorscheme " .. scheme)
 
-  -- Common overrides
+  -- Transparent background
+  vim.cmd("highlight Normal guibg=none")
+  vim.cmd("highlight NormalNC guibg=none")
+  vim.cmd("highlight NormalFloat guibg=none")
+  vim.cmd("highlight SignColumn guibg=none")
   vim.cmd("highlight StatusLine guibg=none")
 
   -- Lualine theme selection

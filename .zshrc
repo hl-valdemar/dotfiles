@@ -9,10 +9,10 @@ bindkey -v
 # set aliases
 alias vi=nvim
 alias vim=nvim
-alias l=eza
-alias ls="eza -l"
-alias la="eza -la"
-alias lt="eza --tree --sort=type"
+alias l="eza"
+alias ls="eza --long"
+alias la="eza --long --all"
+alias lt="eza --long --tree --sort=type"
 alias lg="lazygit"
 
 # style prompt
@@ -39,4 +39,3 @@ fzf-file-widget() {
 
 zle -N fzf-file-widget
 bindkey '^F' fzf-file-widget
-export PATH="$HOME/.bun/bin:$PATH"
