@@ -1,9 +1,12 @@
 [user]
-  name = Valdemar Lorenzen
-  email = valdemar.lorenzen+jepp@jepp.com
+  email = valdemar.lorenzen@gmail.com
+  name = hl-valdemar
 
 [pull]
   rebase = false
+
+[push]
+  followTags = true
 
 [filter "lfs"]
   clean = git-lfs clean -- %f

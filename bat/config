@@ -1,5 +1,4 @@
---theme=auto
-
-# set the theme to "TwoDark"
---theme-dark="base16"
---theme-light="base16"
+# --theme=auto
+#
+# --theme-dark="base16"
+# --theme-light="base16"
