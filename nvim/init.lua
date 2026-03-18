@@ -25,7 +25,6 @@ vim.opt.listchars = {
 
 vim.pack.add({
   -- color schemes
-  { src = "https://github.com/xero/miasma.nvim" },
   { src = "https://github.com/sainnhe/gruvbox-material" },
   { src = "https://github.com/sainnhe/everforest" },
   { src = "https://github.com/rose-pine/neovim" },
@@ -347,6 +346,8 @@ local function load_color_mode(mode)
   local lualine_theme = 'auto'
   if scheme == 'everforest' then
     lualine_theme = 'everforest'
+  elseif scheme == 'miasma_dark' then
+    lualine_theme = 'miasma_dark'
   elseif scheme == 'miasma_light' then
     lualine_theme = 'miasma_light'
   end
