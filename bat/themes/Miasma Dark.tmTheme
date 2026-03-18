@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>name</key>
-	<string>Miasma</string>
+	<string>Miasma Dark</string>
 	<key>author</key>
 	<string>xero (https://github.com/xero/miasma.nvim)</string>
 	<key>settings</key>

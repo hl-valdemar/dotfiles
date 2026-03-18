@@ -4,9 +4,9 @@ git:
       pager: >-
         bash -c '
         if [[ "$(defaults read -g AppleInterfaceStyle 2>/dev/null)" == "Dark" ]]; then
-          export BAT_THEME="Miasma"; export DELTA_FEATURES="dark-mode";
+          export BAT_THEME="Miasma Dark"; export DELTA_FEATURES="dark-mode";
         else
-          export BAT_THEME="EverforestLightSoft"; export DELTA_FEATURES="light-mode";
+          export BAT_THEME="Miasma Light"; export DELTA_FEATURES="light-mode";
         fi;
         SPLIT=""; [ -f /tmp/lg-split ] && SPLIT="--side-by-side";
         exec delta $SPLIT --paging=never --line-numbers

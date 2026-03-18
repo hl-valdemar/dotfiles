@@ -303,8 +303,8 @@ vim.lsp.config("ts_ls", {
 
 -- HELPER FUNCTIONS
 
-local colors_dark = "miasma"
-local colors_light = "everforest"
+local colors_dark = "miasma_dark"
+local colors_light = "miasma_light"
 
 local function load_color_mode(mode)
   local scheme = nil
@@ -321,21 +321,34 @@ local function load_color_mode(mode)
   if scheme == "everforest" then
     vim.g.everforest_background = "soft"
   end
+  if scheme == "miasma_light" then
+    vim.o.background = "light"
+  end
 
   -- Load the colorscheme
   vim.cmd("colorscheme " .. scheme)
 
-  -- Transparent background
-  vim.cmd("highlight Normal guibg=none")
-  vim.cmd("highlight NormalNC guibg=none")
-  vim.cmd("highlight NormalFloat guibg=none")
-  vim.cmd("highlight SignColumn guibg=none")
-  vim.cmd("highlight StatusLine guibg=none")
+  local transparent_groups = {
+    "Normal",       -- Main editor background
+    "NormalNC",     -- Non-current window background
+    "LineNr",       -- Line numbers
+    "SignColumn",   -- Gutter where git signs/diagnostics go
+    "EndOfBuffer",  -- The empty space below your code (the ~ lines)
+    "StatusLine",   -- Your existing status line override
+  }
+
+  for _, group in ipairs(transparent_groups) do
+    local current = vim.api.nvim_get_hl(0, { name = group })
+    current.bg = nil
+    vim.api.nvim_set_hl(0, group, current)
+  end
 
   -- Lualine theme selection
   local lualine_theme = 'auto'
   if scheme == 'everforest' then
     lualine_theme = 'everforest'
+  elseif scheme == 'miasma_light' then
+    lualine_theme = 'miasma_light'
   end
 
   require('lualine').setup({

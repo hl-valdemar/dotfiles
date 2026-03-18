@@ -45,16 +45,16 @@
 
 [delta "light-mode"]
   light = true
-  # Removed lines (Soft pastel red)
-  minus-style = syntax "#F4D6D2"
-  minus-emph-style = syntax "#ECA4A0"
-  # Added lines (Soft pastel green)
-  plus-style = syntax "#DCE4C1"
-  plus-emph-style = syntax "#C2D288"
+  # Removed lines (Warm parchment red tint)
+  minus-style = syntax "#e8d5c4"
+  minus-emph-style = syntax "#dfc0a8"
+  # Added lines (Warm parchment green tint)
+  plus-style = syntax "#d8dfc4"
+  plus-emph-style = syntax "#c4d0a0"
   # Line numbers
-  line-numbers-minus-style = "#ECA4A0"
-  line-numbers-plus-style = "#8DA102"
-  line-numbers-zero-style = "#E0A000"
+  line-numbers-minus-style = "#b36d43"
+  line-numbers-plus-style = "#5f875f"
+  line-numbers-zero-style = "#9a8e7c"
   # Splitters
-  line-numbers-left-style = "#E0A000"
-  line-numbers-right-style = "#E0A000"
+  line-numbers-left-style = "#9a8e7c"
+  line-numbers-right-style = "#9a8e7c"
