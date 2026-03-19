@@ -334,6 +334,7 @@ local function load_color_mode(mode)
     "SignColumn",   -- Gutter where git signs/diagnostics go
     "EndOfBuffer",  -- The empty space below your code (the ~ lines)
     "StatusLine",   -- Your existing status line override
+    "TabLineFill",  -- Tab line background between tabs
   }
 
   for _, group in ipairs(transparent_groups) do
