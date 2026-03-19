@@ -3,3 +3,25 @@
 [user]
 name = "hl-valdemar"
 email = "valdemar.lorenzen@gmail.com"
+
+[ui]
+pager = ["bash", "-c", """
+if [[ "$(defaults read -g AppleInterfaceStyle 2>/dev/null)" == "Dark" ]]; then
+  export BAT_THEME="Miasma Dark"
+  export DELTA_FEATURES="dark-mode"
+else
+  export BAT_THEME="Miasma Light"
+  export DELTA_FEATURES="light-mode"
+fi
+exec delta --paging=always --line-numbers
+"""]
+diff-formatter = "delta-diff"
+editor = "nvim"
+
+[merge-tools.delta-diff]
+diff-args = ["diff", "--no-index", "--color=always", "$left", "$right"]
+program = "git"
+diff-expected-exit-codes = [0, 1]
+
+[colors]
+#"diff token" = { underline = false }
