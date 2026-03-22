@@ -13,7 +13,7 @@ font-codepoint-map = U+2800-U+28FF = Hack Nerd Font
 # theme
 # theme = dark:Miasma,light:Rose Pine Dawn
 theme = dark:Miasma Dark,light:Miasma Light
-background-opacity = 0.95
+background-opacity = 0.97
 background-blur = true
 
 unfocused-split-opacity = 1

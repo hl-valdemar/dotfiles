@@ -374,7 +374,14 @@ vim.keymap.set("n", "<leader>e", ":Oil<CR>")
 
 -- telescope
 local telescope = require('telescope.builtin')
-vim.keymap.set('n', '<leader>f', telescope.find_files, { desc = 'Telescope find files' })
+vim.keymap.set('n', '<leader>ff', telescope.find_files, { desc = 'Telescope find files' })
+vim.keymap.set('n', '<leader>ft', function()
+  telescope.grep_string({
+    search = '[Tt][Oo][Dd][Oo]:',
+    use_regex = true,
+    prompt_title = 'TODOs',
+  })
+end, { desc = 'Telescope find TODOs' })
 vim.keymap.set('n', '<leader>g', telescope.live_grep, { desc = 'Telescope live grep' })
 vim.keymap.set('n', '<leader>b', telescope.buffers, { desc = 'Telescope buffers' })
 vim.keymap.set('n', '<leader>h', telescope.help_tags, { desc = 'Telescope help tags' })
