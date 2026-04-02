@@ -377,7 +377,7 @@ local telescope = require('telescope.builtin')
 vim.keymap.set('n', '<leader>ff', telescope.find_files, { desc = 'Telescope find files' })
 vim.keymap.set('n', '<leader>ft', function()
   telescope.grep_string({
-    search = '[Tt][Oo][Dd][Oo]:',
+    search = '[Tt][Oo][Dd][Oo]',
     use_regex = true,
     prompt_title = 'TODOs',
   })
