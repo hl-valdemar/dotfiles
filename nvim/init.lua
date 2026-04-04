@@ -471,6 +471,11 @@ vim.keymap.set('n', '<leader>tt', function()
   end
 end, { desc = 'Toggle background (light/dark)' })
 
+-- toggle line wrap
+vim.keymap.set('n', '<leader>tw', function()
+  vim.wo.wrap = not vim.wo.wrap
+end, { desc = 'Toggle line wrap' })
+
 -- COLORS
 
 -- detect macos theme and set background on startup
