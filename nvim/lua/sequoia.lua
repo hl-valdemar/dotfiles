@@ -230,7 +230,7 @@ function M.open()
   -- create float
   local columns = vim.o.columns
   local lines = vim.o.lines
-  local width = math.floor(columns * 0.6)
+  local width = math.floor(columns * 0.75)
   local height = math.floor(lines * 0.8)
   local row = math.floor((lines - height) / 2)
   local col = math.floor((columns - width) / 2)
