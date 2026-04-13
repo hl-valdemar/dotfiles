@@ -2,6 +2,7 @@ local M = {}
 
 local config = {
   indent = 4,
+  padding = 2,
 }
 
 local ns_id = vim.api.nvim_create_namespace("sequoia")
@@ -106,9 +107,10 @@ local function render_tree(root)
     end
   end
 
-  table.insert(lines, ".")
-  highlights[1] = { 2, 0, 1, "SequoiaDirectory" } -- root "."
-  render(root.children, "")
+  local pad = string.rep(" ", config.padding)
+  table.insert(lines, pad .. ".")
+  highlights[1] = { 2, config.padding, config.padding + 1, "SequoiaDirectory" } -- root "."
+  render(root.children, pad)
   return lines, line_map, highlights
 end
 
@@ -262,7 +264,9 @@ function M.open()
   }
 
   -- set prompt line
-  vim.api.nvim_buf_set_lines(buf, 0, -1, false, { "> " })
+  local prompt_pad = string.rep(" ", config.padding)
+  local prompt_prefix = prompt_pad .. "> "
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, { prompt_prefix })
 
   -- initial render
   filter_and_render(buf, all_files, "", state)
@@ -292,10 +296,11 @@ function M.open()
     close_float(win)
   end, { buffer = buf })
 
-  -- protect "> " prefix
+  -- protect prompt prefix
+  local prefix_len = #prompt_prefix
   vim.keymap.set("i", "<BS>", function()
     local c = vim.fn.col(".")
-    if c > 3 then
+    if c > prefix_len + 1 then
       vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<BS>", true, false, true), "n", false)
     end
   end, { buffer = buf })
@@ -306,7 +311,7 @@ function M.open()
     callback = function()
       if state.updating then return end
       local line = vim.api.nvim_buf_get_lines(buf, 0, 1, false)[1]
-      local query = line:sub(3) -- strip "> "
+      local query = line:sub(prefix_len + 1) -- strip padded "> "
       filter_and_render(buf, all_files, query, state)
     end,
   })
