@@ -6,7 +6,8 @@ local config = {
 }
 
 local ns_id = vim.api.nvim_create_namespace("sequoia")
-local active_win = nil
+local prompt_win = nil
+local tree_win = nil
 
 local function gather_files()
   local result = vim.fn.system("git rev-parse --is-inside-work-tree 2>/dev/null")
@@ -60,7 +61,7 @@ end
 local function render_tree(root)
   local lines = {}
   local line_map = {}
-  local highlights = {} -- { line_idx, col_start, col_end, hl_group }
+  local highlights = {}
 
   local function render(children, prefix)
     local sorted = {}
@@ -88,9 +89,8 @@ local function render_tree(root)
 
       local line_text = prefix .. connector .. display
       table.insert(lines, line_text)
-      local buf_line = #lines + 1 -- +1 for prompt line
+      local buf_line = #lines
 
-      -- highlight the name portion only
       local name_start = #prefix + #connector
       local name_end = #line_text
       if is_dir then
@@ -109,16 +109,9 @@ local function render_tree(root)
 
   local pad = string.rep(" ", config.padding)
   table.insert(lines, pad .. ".")
-  highlights[1] = { 2, config.padding, config.padding + 1, "SequoiaDirectory" } -- root "."
+  table.insert(highlights, { 1, config.padding, config.padding + 1, "SequoiaDirectory" })
   render(root.children, pad)
   return lines, line_map, highlights
-end
-
-local function update_highlight(buf, state)
-  vim.api.nvim_buf_clear_namespace(buf, ns_id, 0, -1)
-  if state.selected then
-    vim.api.nvim_buf_add_highlight(buf, ns_id, "Visual", state.selected - 1, 0, -1)
-  end
 end
 
 local function find_first_file(line_map)
@@ -130,7 +123,22 @@ local function find_first_file(line_map)
   return keys[1]
 end
 
-local function move_selection(state, buf, direction)
+local function update_highlight(tree_buf, state)
+  vim.api.nvim_buf_clear_namespace(tree_buf, ns_id, 0, -1)
+  if state.selected then
+    vim.api.nvim_buf_add_highlight(tree_buf, ns_id, "Visual", state.selected - 1, 0, -1)
+  end
+end
+
+local function scroll_to_selection(state)
+  if state.selected and tree_win and vim.api.nvim_win_is_valid(tree_win) then
+    vim.api.nvim_win_call(tree_win, function()
+      vim.api.nvim_win_set_cursor(0, { state.selected, 0 })
+    end)
+  end
+end
+
+local function move_selection(state, tree_buf, direction)
   if not state.selected then return end
 
   local keys = {}
@@ -158,10 +166,11 @@ local function move_selection(state, buf, direction)
     end
   end
 
-  update_highlight(buf, state)
+  update_highlight(tree_buf, state)
+  scroll_to_selection(state)
 end
 
-local function filter_and_render(buf, all_files, query, state)
+local function filter_and_render(tree_buf, all_files, query, state)
   state.updating = true
 
   local filtered
@@ -172,10 +181,10 @@ local function filter_and_render(buf, all_files, query, state)
   end
 
   if #filtered == 0 then
-    vim.api.nvim_buf_set_lines(buf, 1, -1, false, { "  (no matches)" })
+    vim.api.nvim_buf_set_lines(tree_buf, 0, -1, false, { "  (no matches)" })
     state.line_map = {}
     state.selected = nil
-    update_highlight(buf, state)
+    update_highlight(tree_buf, state)
     state.updating = false
     return
   end
@@ -183,78 +192,103 @@ local function filter_and_render(buf, all_files, query, state)
   local tree = build_tree(filtered)
   local lines, line_map, highlights = render_tree(tree)
 
-  vim.api.nvim_buf_set_lines(buf, 1, -1, false, lines)
+  vim.api.nvim_buf_set_lines(tree_buf, 0, -1, false, lines)
   state.line_map = line_map
   state.selected = find_first_file(line_map)
-  update_highlight(buf, state)
+  update_highlight(tree_buf, state)
+  scroll_to_selection(state)
 
-  -- apply name highlights
   local hl_ns = vim.api.nvim_create_namespace("sequoia_syntax")
-  vim.api.nvim_buf_clear_namespace(buf, hl_ns, 0, -1)
+  vim.api.nvim_buf_clear_namespace(tree_buf, hl_ns, 0, -1)
   for _, hl in ipairs(highlights) do
-    vim.api.nvim_buf_add_highlight(buf, hl_ns, hl[4], hl[1] - 1, hl[2], hl[3])
+    vim.api.nvim_buf_add_highlight(tree_buf, hl_ns, hl[4], hl[1] - 1, hl[2], hl[3])
   end
 
   state.updating = false
 end
 
-local function close_float(win)
-  if win and vim.api.nvim_win_is_valid(win) then
-    vim.api.nvim_win_close(win, true)
+local closing = false
+
+local function close_floats()
+  if closing then return end
+  closing = true
+  if prompt_win and vim.api.nvim_win_is_valid(prompt_win) then
+    vim.api.nvim_win_close(prompt_win, true)
   end
-  active_win = nil
+  if tree_win and vim.api.nvim_win_is_valid(tree_win) then
+    vim.api.nvim_win_close(tree_win, true)
+  end
+  prompt_win = nil
+  tree_win = nil
   vim.cmd("stopinsert")
+  closing = false
 end
 
-local function open_selected(state, win)
+local function open_selected(state)
   local path = state.line_map[state.selected]
   if not path then return end
-  close_float(win)
+  close_floats()
   vim.cmd("edit " .. vim.fn.fnameescape(path))
 end
 
 function M.open()
-  -- guard: already open
-  if active_win and vim.api.nvim_win_is_valid(active_win) then
-    vim.api.nvim_set_current_win(active_win)
+  if prompt_win and vim.api.nvim_win_is_valid(prompt_win) then
+    vim.api.nvim_set_current_win(prompt_win)
     return
   end
 
   local all_files = gather_files()
 
-  -- create buffer
-  local buf = vim.api.nvim_create_buf(false, true)
-  vim.bo[buf].bufhidden = "wipe"
-  vim.bo[buf].buftype = "nofile"
-  vim.bo[buf].swapfile = false
-  vim.api.nvim_buf_set_name(buf, "Sequoia")
-
-  -- create float
+  -- dimensions
   local columns = vim.o.columns
   local lines = vim.o.lines
   local width = math.floor(columns * 0.75)
-  local height = math.floor(lines * 0.8)
-  local row = math.floor((lines - height) / 2)
+  local total_height = math.floor(lines * 0.8)
+  local row = math.floor((lines - total_height) / 2)
   local col = math.floor((columns - width) / 2)
 
-  local win = vim.api.nvim_open_win(buf, true, {
+  -- prompt buffer + window
+  local prompt_buf = vim.api.nvim_create_buf(false, true)
+  vim.bo[prompt_buf].bufhidden = "wipe"
+  vim.bo[prompt_buf].buftype = "nofile"
+  vim.bo[prompt_buf].swapfile = false
+  vim.api.nvim_buf_set_name(prompt_buf, "Sequoia")
+
+  prompt_win = vim.api.nvim_open_win(prompt_buf, true, {
     relative = "editor",
     row = row,
     col = col,
     width = width,
-    height = height,
+    height = 1,
     style = "minimal",
     border = "double",
   })
-  active_win = win
 
-  -- transparent bg: inherit Normal bg (nil if transparent)
+  -- tree buffer + window
+  local tree_buf = vim.api.nvim_create_buf(false, true)
+  vim.bo[tree_buf].bufhidden = "wipe"
+  vim.bo[tree_buf].buftype = "nofile"
+  vim.bo[tree_buf].swapfile = false
+
+  tree_win = vim.api.nvim_open_win(tree_buf, false, {
+    relative = "editor",
+    row = row + 3,
+    col = col,
+    width = width,
+    height = total_height - 3,
+    style = "minimal",
+    border = "double",
+    focusable = true,
+  })
+
+  -- transparent bg
   local normal_bg = vim.api.nvim_get_hl(0, { name = "Normal" }).bg
   local dir_hl = vim.api.nvim_get_hl(0, { name = "Directory" })
   vim.api.nvim_set_hl(0, "SequoiaNormal", { bg = normal_bg })
   vim.api.nvim_set_hl(0, "SequoiaBorder", { bg = normal_bg })
   vim.api.nvim_set_hl(0, "SequoiaDirectory", { fg = dir_hl.fg, bg = normal_bg, bold = dir_hl.bold })
-  vim.wo[win].winhighlight = "Normal:SequoiaNormal,FloatBorder:SequoiaBorder"
+  vim.wo[prompt_win].winhighlight = "Normal:SequoiaNormal,FloatBorder:SequoiaBorder"
+  vim.wo[tree_win].winhighlight = "Normal:SequoiaNormal,FloatBorder:SequoiaBorder"
 
   -- state
   local state = {
@@ -263,68 +297,67 @@ function M.open()
     updating = false,
   }
 
-  -- set prompt line
+  -- prompt
   local prompt_pad = string.rep(" ", config.padding)
   local prompt_prefix = prompt_pad .. "> "
-  vim.api.nvim_buf_set_lines(buf, 0, -1, false, { prompt_prefix })
+  local prefix_len = #prompt_prefix
+  vim.api.nvim_buf_set_lines(prompt_buf, 0, -1, false, { prompt_prefix })
 
   -- initial render
-  filter_and_render(buf, all_files, "", state)
+  filter_and_render(tree_buf, all_files, "", state)
 
-  -- keymaps
+  -- keymaps (on prompt buf)
   vim.keymap.set("i", "<C-j>", function()
-    move_selection(state, buf, 1)
-  end, { buffer = buf })
+    move_selection(state, tree_buf, 1)
+  end, { buffer = prompt_buf })
 
   vim.keymap.set("i", "<C-k>", function()
-    move_selection(state, buf, -1)
-  end, { buffer = buf })
+    move_selection(state, tree_buf, -1)
+  end, { buffer = prompt_buf })
 
   vim.keymap.set("i", "<CR>", function()
-    open_selected(state, win)
-  end, { buffer = buf })
+    open_selected(state)
+  end, { buffer = prompt_buf })
 
   vim.keymap.set("i", "<Esc>", function()
-    close_float(win)
-  end, { buffer = buf })
+    close_floats()
+  end, { buffer = prompt_buf })
 
   vim.keymap.set("n", "<Esc>", function()
-    close_float(win)
-  end, { buffer = buf })
+    close_floats()
+  end, { buffer = prompt_buf })
 
   vim.keymap.set("n", "q", function()
-    close_float(win)
-  end, { buffer = buf })
+    close_floats()
+  end, { buffer = prompt_buf })
 
   -- protect prompt prefix
-  local prefix_len = #prompt_prefix
   vim.keymap.set("i", "<BS>", function()
     local c = vim.fn.col(".")
     if c > prefix_len + 1 then
       vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<BS>", true, false, true), "n", false)
     end
-  end, { buffer = buf })
+  end, { buffer = prompt_buf })
 
   -- filter on keypress
   vim.api.nvim_create_autocmd("TextChangedI", {
-    buffer = buf,
+    buffer = prompt_buf,
     callback = function()
       if state.updating then return end
-      local line = vim.api.nvim_buf_get_lines(buf, 0, 1, false)[1]
-      local query = line:sub(prefix_len + 1) -- strip padded "> "
-      filter_and_render(buf, all_files, query, state)
+      local line = vim.api.nvim_buf_get_lines(prompt_buf, 0, 1, false)[1]
+      local query = line:sub(prefix_len + 1)
+      filter_and_render(tree_buf, all_files, query, state)
     end,
   })
 
   -- close on leave
   vim.api.nvim_create_autocmd("BufLeave", {
-    buffer = buf,
+    buffer = prompt_buf,
     callback = function()
-      close_float(win)
+      close_floats()
     end,
   })
 
-  -- enter insert mode at end of prompt
   vim.cmd("startinsert!")
 end
 
