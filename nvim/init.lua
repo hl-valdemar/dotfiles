@@ -45,6 +45,10 @@ vim.pack.add({
   { src = "https://github.com/Saghen/blink.cmp" },
 })
 
+require("sequoia").setup({
+    indent = 3,
+})
+
 require('lualine').setup({
   options = {
     icons_enabled = true,
