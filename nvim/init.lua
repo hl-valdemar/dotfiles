@@ -3,8 +3,8 @@
 vim.opt.winborder = "double"
 vim.opt.cursorcolumn = false
 vim.opt.ignorecase = true
-vim.opt.tabstop = 4
-vim.opt.shiftwidth = 4
+vim.opt.tabstop = 2
+vim.opt.shiftwidth = 2
 vim.opt.expandtab = true
 vim.opt.smartindent = true
 vim.opt.wrap = false
@@ -85,7 +85,7 @@ require('lualine').setup({
     lualine_x = {},
     lualine_y = {},
     lualine_z = {
-      function() -- battery display
+      function()       -- battery display
         local handle = io.popen('pmset -g batt | grep -Eo "\\d+%" | head -1', "r")
         if handle then
           local result = handle:read("a")
@@ -114,7 +114,7 @@ require('telescope').setup({
   defaults = {
     borderchars = { "═", "║", "═", "║", "╔", "╗", "╝", "╚" },
     layout_config = {
-      prompt_position = "top", -- or "bottom"
+      prompt_position = "top",       -- or "bottom"
     },
     sorting_strategy = "ascending",
     mappings = {
@@ -146,7 +146,7 @@ require('telescope').setup({
 
 require('blink.cmp').setup({
   keymap = {
-    preset = 'none', -- we'll define custom keymaps
+    preset = 'none',     -- we'll define custom keymaps
     ['<C-j>'] = { 'select_next', 'fallback' },
     ['<C-k>'] = { 'select_prev', 'fallback' },
     ['<C-CR>'] = { 'accept', 'fallback' },
@@ -328,13 +328,13 @@ local function load_color_mode(mode)
   vim.cmd("colorscheme " .. scheme)
 
   local transparent_groups = {
-    "Normal",       -- Main editor background
-    "NormalNC",     -- Non-current window background
-    "LineNr",       -- Line numbers
-    "SignColumn",   -- Gutter where git signs/diagnostics go
-    "EndOfBuffer",  -- The empty space below your code (the ~ lines)
-    "StatusLine",   -- Your existing status line override
-    "TabLineFill",  -- Tab line background between tabs
+    "Normal",          -- Main editor background
+    "NormalNC",        -- Non-current window background
+    "LineNr",          -- Line numbers
+    "SignColumn",      -- Gutter where git signs/diagnostics go
+    "EndOfBuffer",     -- The empty space below your code (the ~ lines)
+    "StatusLine",      -- Your existing status line override
+    "TabLineFill",     -- Tab line background between tabs
   }
 
   for _, group in ipairs(transparent_groups) do
@@ -416,6 +416,13 @@ end, { desc = "Toggle diagnostic virtual lines" })
 
 vim.keymap.set("n", "<leader>v", ":e $MYVIMRC<CR>")
 
+-- quick notes or other musings
+vim.keymap.set("n", "<leader>w", function()
+  os.execute("mkdir -p /Users/valdemar/Documents/Notes/musings")
+  local date = os.date("%Y-%m-%d")
+  return string.format(":e /Users/valdemar/Documents/Notes/musings/%s.md<CR>", date)
+end, { expr = true, desc = "Enter today's scratch entry" })
+
 -- snatch code snippet for image generation
 vim.keymap.set("v", "<leader>c", function()
   local ext = vim.fn.expand("%:e")
@@ -425,8 +432,7 @@ vim.keymap.set("v", "<leader>c", function()
     lang_flag = string.format("-l %s", ext)
   end
 
-  return string.format(
-    ":<C-u>'<,'>w !snatch --t miasma --no-chrome --no-decorations -o ~/Desktop/code.png -c %s<CR>",
+  return string.format(":<C-u>'<,'>w !snatch --t miasma --no-chrome --no-decorations -o ~/Desktop/code.png -c %s<CR>",
     lang_flag)
 end, { expr = true, desc = "Pipe to snatch" })
 
@@ -439,7 +445,7 @@ vim.keymap.set("n", "<leader>og", function()
     return ":<CR>"
   end
 
-  local git_url = handle:read("*a"):match("^%s*(.-)%s*$") -- trim whitespace
+  local git_url = handle:read("*a"):match("^%s*(.-)%s*$")   -- trim whitespace
   handle:close()
 
   if git_url == nil or git_url == "" then
