@@ -1,8 +1,8 @@
 #:schema https://docs.jj-vcs.dev/latest/config-schema.json
 
 [user]
-name = "hl-valdemar"
-email = "valdemar.lorenzen@gmail.com"
+name = "Valdemar Lorenzen"
+email = "valdemar.lorenzen@jepp.com"
 
 [ui]
 pager = ["bash", "-c", """
@@ -13,7 +13,11 @@ else
   export BAT_THEME="Miasma Light"
   export DELTA_FEATURES="light-mode"
 fi
-exec delta --paging=always --line-numbers
+DELTA_SIDE_BY_SIDE=""
+if [ "$(tput cols)" -ge 160 ]; then
+  DELTA_SIDE_BY_SIDE="--side-by-side"
+fi
+exec delta --paging=always --line-numbers $DELTA_SIDE_BY_SIDE
 """]
 diff-formatter = "delta-diff"
 editor = "nvim"
@@ -37,3 +41,4 @@ merge-tool-edits-conflict-markers = true
 [git.ssh]
 hijack-askpass = true
 #"diff token" = { underline = false }
+

@@ -149,6 +149,9 @@ require('telescope').setup({
 })
 
 require('blink.cmp').setup({
+    enabled = function()
+        return vim.b.blink_cmp ~= false
+    end,
     keymap = {
         preset = 'none', -- we'll define custom keymaps
         ['<C-j>'] = { 'select_next', 'fallback' },

@@ -260,6 +260,7 @@ function M.open()
   vim.bo[prompt_buf].buftype = "nofile"
   vim.bo[prompt_buf].swapfile = false
   vim.api.nvim_buf_set_name(prompt_buf, "Sequoia")
+  vim.b[prompt_buf].blink_cmp = false
 
   prompt_win = vim.api.nvim_open_win(prompt_buf, true, {
     relative = "editor",
@@ -286,6 +287,8 @@ function M.open()
     style = "minimal",
     border = "double",
     focusable = true,
+    title = " Sequoia ",
+    title_pos = "left",
   })
 
   -- transparent bg
