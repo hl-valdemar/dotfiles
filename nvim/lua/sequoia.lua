@@ -97,9 +97,11 @@ local function render_tree(root)
         table.insert(highlights, { buf_line, name_start, name_end, "SequoiaDirectory" })
       end
 
-      if entry.node.full_path then
-        line_map[buf_line] = entry.node.full_path
-      end
+      line_map[buf_line] = {
+        full_path = entry.node.full_path,
+        name_start = name_start,
+        name_end = name_end,
+      }
 
       if is_dir then
         render(entry.node.children, child_prefix)
@@ -116,8 +118,10 @@ end
 
 local function find_first_file(line_map)
   local keys = {}
-  for k, _ in pairs(line_map) do
-    table.insert(keys, k)
+  for k, v in pairs(line_map) do
+    if v.full_path then
+      table.insert(keys, k)
+    end
   end
   table.sort(keys)
   return keys[1]
@@ -125,8 +129,9 @@ end
 
 local function update_highlight(tree_buf, state)
   vim.api.nvim_buf_clear_namespace(tree_buf, ns_id, 0, -1)
-  if state.selected then
-    vim.api.nvim_buf_add_highlight(tree_buf, ns_id, "Visual", state.selected - 1, 0, -1)
+  if state.selected and state.line_map[state.selected] then
+    local entry = state.line_map[state.selected]
+    vim.api.nvim_buf_add_highlight(tree_buf, ns_id, "Visual", state.selected - 1, entry.name_start, entry.name_end)
   end
 end
 
@@ -142,8 +147,10 @@ local function move_selection(state, tree_buf, direction)
   if not state.selected then return end
 
   local keys = {}
-  for k, _ in pairs(state.line_map) do
-    table.insert(keys, k)
+  for k, v in pairs(state.line_map) do
+    if v.full_path then
+      table.insert(keys, k)
+    end
   end
   table.sort(keys)
 
@@ -225,10 +232,10 @@ local function close_floats()
 end
 
 local function open_selected(state)
-  local path = state.line_map[state.selected]
-  if not path then return end
+  local entry = state.line_map[state.selected]
+  if not entry or not entry.full_path then return end
   close_floats()
-  vim.cmd("edit " .. vim.fn.fnameescape(path))
+  vim.cmd("edit " .. vim.fn.fnameescape(entry.full_path))
 end
 
 function M.open()
