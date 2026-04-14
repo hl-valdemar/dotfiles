@@ -335,12 +335,12 @@ local function load_color_mode(mode)
     vim.cmd("colorscheme " .. scheme)
 
     local transparent_groups = {
-        "Normal",  -- Main editor background
-        "NormalNC", -- Non-current window background
-        "LineNr",  -- Line numbers
-        "SignColumn", -- Gutter where git signs/diagnostics go
+        "Normal",      -- Main editor background
+        "NormalNC",    -- Non-current window background
+        "LineNr",      -- Line numbers
+        "SignColumn",  -- Gutter where git signs/diagnostics go
         "EndOfBuffer", -- The empty space below your code (the ~ lines)
-        "StatusLine", -- Your existing status line override
+        "StatusLine",  -- Your existing status line override
         "TabLineFill", -- Tab line background between tabs
     }
 
@@ -379,10 +379,12 @@ vim.keymap.set('n', '<leader>q', ':bdelete<CR>', { desc = 'Close buffer' })
 
 vim.keymap.set("n", "<leader>e", ":Oil<CR>")
 
+vim.keymap.set("n", "<leader>s", require("sequoia").open, { desc = "Sequoia browse files" })
+
 -- telescope
 local telescope = require('telescope.builtin')
-vim.keymap.set('n', '<leader>ff', telescope.find_files, { desc = 'Telescope find files' })
-vim.keymap.set('n', '<leader>ft', function()
+vim.keymap.set('n', '<leader>f', telescope.find_files, { desc = 'Telescope find files' })
+vim.keymap.set('n', '<leader>td', function()
     telescope.grep_string({
         search = '[Tt][Oo][Dd][Oo]',
         use_regex = true,
