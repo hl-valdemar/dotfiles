@@ -294,8 +294,10 @@ function M.open()
   -- transparent bg
   local normal_bg = vim.api.nvim_get_hl(0, { name = "Normal" }).bg
   local dir_hl = vim.api.nvim_get_hl(0, { name = "Directory" })
+  local title_hl = vim.api.nvim_get_hl(0, { name = "FloatTitle", link = false })
   vim.api.nvim_set_hl(0, "SequoiaNormal", { bg = normal_bg })
   vim.api.nvim_set_hl(0, "SequoiaBorder", { bg = normal_bg })
+  vim.api.nvim_set_hl(0, "SequoiaPrompt", { fg = title_hl.fg, bg = normal_bg, bold = true })
   vim.api.nvim_set_hl(0, "SequoiaDirectory", { fg = dir_hl.fg, bg = normal_bg, bold = dir_hl.bold })
   vim.wo[prompt_win].winhighlight = "Normal:SequoiaNormal,FloatBorder:SequoiaBorder"
   vim.wo[tree_win].winhighlight = "Normal:SequoiaNormal,FloatBorder:SequoiaBorder"
@@ -308,10 +310,10 @@ function M.open()
   }
 
   -- prompt
-  local prompt_pad = string.rep(" ", config.padding)
-  local prompt_prefix = prompt_pad .. "> "
+  local prompt_prefix = " > "
   local prefix_len = #prompt_prefix
   vim.api.nvim_buf_set_lines(prompt_buf, 0, -1, false, { prompt_prefix })
+  vim.api.nvim_buf_add_highlight(prompt_buf, ns_id, "SequoiaPrompt", 0, 1, 2)
 
   -- initial render
   filter_and_render(tree_buf, all_files, "", state)
